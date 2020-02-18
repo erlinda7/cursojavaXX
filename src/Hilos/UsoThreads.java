@@ -22,7 +22,7 @@ import java.util.logging.Logger;
 public class UsoThreads {
 
     public static void main(String[] args) {
-		// TODO Auto-generated method stub
+        // TODO Auto-generated method stub
 
         JFrame marco = new MarcoRebote();
 
@@ -34,10 +34,37 @@ public class UsoThreads {
 
 }
 
+class PelotaHilos implements Runnable {
+
+    private Pelota pelota;
+    private Component componente;
+
+    public PelotaHilos(Pelota unaPelota, Component unComponente) {
+        pelota = unaPelota;
+        componente = unComponente;
+    }
+
+    public void run() {
+        for (int i = 1; i <= 3000; i++) {
+
+            pelota.mueve_pelota(componente.getBounds());
+
+            componente.paint(componente.getGraphics());
+
+            try {
+                Thread.sleep(4);
+            } catch (InterruptedException ex) {
+                Logger.getLogger(MarcoRebote.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+    }
+
+}
+
 //Movimiento de la pelota-----------------------------------------------------------------------------------------
 class Pelota {
 
-	// Mueve la pelota invirtiendo posición si choca con límites
+    // Mueve la pelota invirtiendo posición si choca con límites
     public void mueve_pelota(Rectangle2D limites) {
 
         x += dx;
@@ -75,7 +102,7 @@ class Pelota {
 
     }
 
-	//Forma de la pelota en su posición inicial
+    //Forma de la pelota en su posición inicial
     public Ellipse2D getShape() {
 
         return new Ellipse2D.Double(x, y, TAMX, TAMY);
@@ -99,7 +126,7 @@ class Pelota {
 // Lámina que dibuja las pelotas----------------------------------------------------------------------
 class LaminaPelota extends JPanel {
 
-	//Añadimos pelota a la lámina
+    //Añadimos pelota a la lámina
     public void add(Pelota b) {
 
         pelotas.add(b);
@@ -158,7 +185,7 @@ class MarcoRebote extends JFrame {
         add(laminaBotones, BorderLayout.SOUTH);
     }
 
-	//Ponemos botones
+    //Ponemos botones
     public void ponerBoton(Container c, String titulo, ActionListener oyente) {
 
         JButton boton = new JButton(titulo);
@@ -169,26 +196,16 @@ class MarcoRebote extends JFrame {
 
     }
 
-	//Añade pelota y la bota 1000 veces
+    //Añade pelota y la bota 1000 veces
     public void comienza_el_juego() {
 
         Pelota pelota = new Pelota();
 
         lamina.add(pelota);
-
-        for (int i = 1; i <= 3000; i++) {
-
-            pelota.mueve_pelota(lamina.getBounds());
-
-            lamina.paint(lamina.getGraphics());
-            
-            try {
-                Thread.sleep(4);
-            } catch (InterruptedException ex) {
-                Logger.getLogger(MarcoRebote.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
-
+        
+        Runnable r =new PelotaHilos(pelota, lamina);
+        Thread t =new Thread(r);
+        t.start();
     }
 
     private LaminaPelota lamina;
